@@ -32,6 +32,7 @@
 (setq display-time-24hr-format t)
 (setq inhibit-startup-message t)
 (setq visible-bell t)
+(setq-default indent-tabs-mode nil)
 (display-time)
 
 ;; CoffeeScript
