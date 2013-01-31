@@ -1,45 +1,50 @@
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-(when
-    (load
-     (expand-file-name "~/.emacs.d/elpa/package.el"))
-  (package-initialize))
+;; ELPA, from http://www.kedrovsky.com/blog/clojure-emacs-nrepl-and-leiningen
+(defvar my-packages '(clojure-mode nrepl color-theme paredit markdown-mode))
 
-;; SLIME
-(require 'slime)
-(setq slime-net-coding-system 'utf-8-unix)
-(slime-setup '(slime-repl))
+(require 'package)
+(add-to-list 'package-archives
+	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+(when (not package-archive-contents)
+  (package-refresh-contents))
+(dolist (p my-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
 
 ;; Paredit
-(autoload 'paredit-mode "paredit"
-  "Minor mode for pseudo-structurally editing Lisp code." t)
 (add-hook 'emacs-lisp-mode-hook       (lambda () (paredit-mode +1)))
 (add-hook 'lisp-mode-hook             (lambda () (paredit-mode +1)))
 (add-hook 'lisp-interaction-mode-hook (lambda () (paredit-mode +1)))
 (add-hook 'clojure-mode-hook (lambda () (paredit-mode +1)))
 (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))
 
-;; Iswitchb
+;; full screen
+(defun toggle-fullscreen ()
+  "Toggle full screen on X11"
+  (interactive)
+  (when (eq window-system 'x)
+    (set-frame-parameter
+     nil 'fullscreen
+     (when (not (frame-parameter nil 'fullscreen)) 'fullboth))))
+
+(global-set-key [f11] 'toggle-fullscreen)
+
+;; color-theme
+;; make it happy (probably some Emacs 24 incompatibility)
+(defun plist-to-alist (x) x)
+(require 'color-theme)
+(color-theme-deep-blue)
+
+;; misc
 (iswitchb-mode 1)
 (show-paren-mode 1)
 (menu-bar-mode 0)
 (tool-bar-mode 0)
-(scroll-bar-mode nil)
+(scroll-bar-mode 0)
 (column-number-mode 1)
 (setq display-time-24hr-format t)
 (setq inhibit-startup-message t)
 (setq visible-bell t)
 (setq-default indent-tabs-mode nil)
-(display-time)
+;; (display-time)
 
-;; CoffeeScript
-(add-to-list 'load-path "~/.emacs.d/vendor/coffee-mode")
-(require 'coffee-mode)
-
-;; Color theme (NB. under Ubuntu I must have emacs-goodies-el installed)
-(require 'color-theme)
-(color-theme-initialize)
-(color-theme-deep-blue)
